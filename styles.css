@@ -1,0 +1,86 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: black;
+}
+
+header {
+    background-color: black;
+    color: #3fff05;
+    padding: 25px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    text-shadow: 0 0 10px #3fff05;
+}
+
+main {
+    background-color: black;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 2px;
+}
+
+.cards {
+    background-color: #111;
+    border: 2px solid #3fff05;
+    border-radius: 10px;
+    padding: 15px;
+    height: 150px;
+    width: 157px;
+    position: relative;
+    box-shadow: 0 0 5px #3fff05;
+}
+
+.name {
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.all-info {
+    gap: 0px;
+    height: 80px;
+    color: lightgray;
+    font-size: 8px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.info {
+    padding: 3px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.yes {
+    color: #3fff05;
+    text-shadow: 0 0 5px #3fff05;
+}
+
+.no {
+  color: red;
+  text-shadow: 0 0 5px red;
+}
+
+.visit {
+    background-color: #3fff05;
+    color: black;
+    border: none;
+    padding: 8px 70px;
+    font-size: 8px;
+    font-weight: bold;
+    border-radius: 5px;
+    box-shadow: 0 0 5px #3fff05;
+}
+
+footer {
+    background-color: black;
+    color: #3fff05;
+    padding: 10px;
+    text-align: center;
+    bottom: 0;
+    text-shadow: 0 0 10px #3fff05;
+}
