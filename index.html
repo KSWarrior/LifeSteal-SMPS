@@ -1,73 +1,266 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MC Server List</title>
-    <link rel="stylesheet" href="styles.css">
+  <title>Best Minecraft Servers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: white;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    .title {
+      font-size: 1.8em;
+      color: limegreen;
+      margin: 40px 0 20px;
+      text-shadow: 0 0 15px limegreen;
+    }
+
+    #searchBar, select, button {
+      padding: 10px;
+      margin: 5px;
+      font-size: 15px;
+      border-radius: 5px;
+      border: 1px solid limegreen;
+      background-color: black;
+      color: white;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    #searchBar {
+      width: 300px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 30px;
+    }
+
+    .cards {
+      background: linear-gradient(145deg, #0a0a0a, #1a1a1a);
+      border: 2px solid limegreen;
+      border-radius: 10px;
+      text-align: right;
+      padding: 15px;
+      width: 90%;
+      max-width: 300px;
+    }
+
+    .cards:hover {
+      box-shadow: 0 0 5px #00ff88;
+    }
+
+    .name {
+      text-align: left;
+      font-size: 15px;
+      color: #fff;
+    }
+
+    .all-info {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .info {
+      font-size: 14px;
+      margin: 1px 0;
+      color: #ccc;
+    }
+
+    .online {
+      color: #00ff88;
+      font-weight: bold;
+      text-shadow: 0 0 3px #00ff88;
+    }
+
+    .offline {
+      color: red;
+      font-weight: bold;
+      text-shadow: 0 0 3px red;
+    }
+
+    .join {
+      background-color: limegreen;
+      color: black;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 5px;
+      font-weight: bold;
+      font-size: 1em;
+    }
+
+    .join:hover {
+      background-color: #00ff66;
+      transform: scale(1.05);
+    }
+
+    @media screen and (max-width: 600px) {
+      #searchBar {
+        width: 90%;
+      }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>MC Server List</h1>
-    </header>
 
-    <main>
+<h1 class="title">Best Minecraft Servers</h1>
 
-      <section class="cards">
-        <h3 class="name">GHUM GHUM SMP</h3>
-        <div class="all-info">
-        <h5 class="info">Edition: <span class="yes">Java</span> | <span class="no">Bedrock</span></h5>
-        <h5 class="info">Authentication: <span class="no">Whitelist</span> | <span class="yes">Cracked</span></h5>
-        <h5 class="info">Availability : india | <span class="yes">24/7</span></h5>
-        </div>
-        <button class="visit" onclick="window.location.href='https://discord.gg/wE2uf3bWvv'">Play</button>
-      </section>
-        
-      <section class="cards">
-        <h3 class="name">StudentNetwork</h3>
-        <div class="all-info">
-        <h5 class="info">Edition: <span class="yes">Java</span> | <span class="yes">Bedrock</span></h5>
-        <h5 class="info">Authentication: <span class="no">Whitelist</span> | <span class="yes">Cracked</span></h5>
-        <h5 class="info">Availability : Germany | <span class="no">24/7</span></h5>
-        </div>
-        <button class="visit" onclick="window.location.href='https://discord.gg/E9SMVsGHfa'">Play</button>
-      </section>
-        
-      <section class="cards">
-        <h3 class="name">Crimson CoreMC</h3>
-        <div class="all-info">
-        <h5 class="info">Edition: <span class="yes">Java</span> | <span class="yes">Bedrock</span></h5>
-        <h5 class="info">Authentication: <span class="no">Whitelist</span> | <span class="yes">Cracked</span></h5>
-        <h5 class="info">Availability : Canada | <span class="yes">24/7</span></h5>
-        </div>
-        <button class="visit" onclick="window.location.href='https://discord.gg/MheqqDGfp7'">Play</button>
-      </section>
-        
-      <section class="cards">
-        <h3 class="name">Dark SMP</h3>
-        <div class="all-info">
-        <h5 class="info">Edition: <span class="yes">Java</span> | <span class="yes">Bedrock</span></h5>
-        <h5 class="info">Authentication: <span class="yes">Whitelist</span> | <span class="yes">Cracked</span></h5>
-        <h5 class="info">Availability : India | <span class="yes">24/7</span></h5>
-        </div>
-        <button class="visit" onclick="window.location.href='https://discord.gg/hzBMqxK5dS'">Play</button>
-      </section>
+<div style="margin-bottom: 20px;">
+  <input id="searchBar" type="text" placeholder="Search by name or version" />
+  <select id="editionFilter">
+    <option value="">Edition</option>
+    <option value="java">Java</option>
+    <option value="bedrock">Bedrock</option>
+  </select>
+  <select id="authFilter">
+    <option value="">Auth</option>
+    <option value="cracked">Cracked</option>
+    <option value="premium">Premium</option>
+  </select>
+  <select id="statusFilter">
+    <option value="">Uptime</option>
+    <option value="online">24/7</option>
+    <option value="offline">non-24/7</option>
+  </select>
+  <select id="locationFilter">
+    <option value="">Location</option>
+    <option value="india">India</option>
+    <option value="usa">USA</option>
+    <option value="eu">EU</option>
+  </select>
+  <button onclick="resetFilters()">Reset Filters</button>
+</div>
 
-      <section class="cards">
-        <h3 class="name">FlowMc</h3>
-        <div class="all-info">
-        <h5 class="info">Edition: <span class="yes">Java</span> | <span class="no">Bedrock</span></h5>
-        <h5 class="info">Authentication: <span class="no">Whitelist</span> | <span class="yes">Cracked</span></h5>
-        <h5 class="info">Availability : India | <span class="yes">24/7</span></h5>
-        </div>
-        <button class="visit" onclick="window.location.href='https://discord.gg/rCznKUHMjs'">Play</button>
-      </section>
-      
-    </main>
+<div class="container">
+  <!-- Server 1 -->
+  <section class="cards">
+    <h3 class="name">GHUM GHUM SMP</h3>
+    <div class="all-info">
+      <h5 class="info">Edition: <span class="edition java">Java</span> | <span class="edition bedrock">Bedrock</span></h5>
+      <h5 class="info">Version: 1.8.8 - 1.21.5</h5>
+      <h5 class="info">Authentication: <span class="auth cracked">Cracked</span></h5>
+      <h5 class="info">Status: <span class="status online">24/7</span></h5>
+      <h5 class="info">Location: <span class="location india">India</span></h5>
+    </div>
+    <a href="https://discord.gg/wE2uf3bWvv" target="_blank">
+      <button class="join">Join Discord</button>
+    </a>
+  </section>
 
-    <footer>
-        &copy; 2025 by KS Warrior
-    </footer>
+  <!-- Server 2 -->
+  <section class="cards">
+    <h3 class="name">StudentNetwork</h3>
+    <div class="all-info">
+      <h5 class="info">Edition: <span class="edition bedrock">Bedrock</span></h5>
+      <h5 class="info">Version: 1.20.1</h5>
+      <h5 class="info">Authentication: <span class="auth cracked">Cracked</span></h5>
+      <h5 class="info">Status: <span class="status offline">non-24/7</span></h5>
+      <h5 class="info">Location: <span class="location usa">Germany</span></h5>
+    </div>
+    <a href="https://discord.gg/E9SMVsGHfa" target="_blank">
+      <button class="join">Join Discord</button>
+    </a>
+  </section>
+  
+<!-- Server 3 -->
+<section class="cards">
+  <h3 class="name">Crimson CoreMC</h3>
+  <div class="all-info">
+    <h5 class="info">Edition: <span class="edition java">Java</span> | <span class="edition bedrock">Bedrock</span></h5>
+    <h5 class="info">Version: Unknown</h5>
+    <h5 class="info">Authentication: <span class="auth cracked">Cracked</span></h5>
+    <h5 class="info">Status: <span class="status online">24/7</span></h5>
+    <h5 class="info">Location: <span class="location canada">Canada</span></h5>
+  </div>
+  <a href="https://discord.gg/MheqqDGfp7" target="_blank">
+    <button class="join">Join Discord</button>
+  </a>
+</section>
+
+<!-- Server 4 -->
+<section class="cards">
+  <h3 class="name">Dark SMP</h3>
+  <div class="all-info">
+    <h5 class="info">Edition: <span class="edition java">Java</span> | <span class="edition bedrock">Bedrock</span></h5>
+    <h5 class="info">Authentication: <span class="auth whitelist">Whitelist</span> | <span class="auth cracked">Cracked</span></h5>
+    <h5 class="info">Status: <span class="status online">24/7</span></h5>
+    <h5 class="info">Location: <span class="location india">India</span></h5>
+  </div>
+  <a href="https://discord.gg/hzBMqxK5dS" target="_blank">
+    <button class="join">Join Discord</button>
+  </a>
+</section>
+
+<!-- Server 5 -->
+<section class="cards">
+  <h3 class="name">FlowMc</h3>
+  <div class="all-info">
+    <h5 class="info">Edition: <span class="edition java">Java</span> | <span class="edition bedrock">Bedrock</span></h5>
+    <h5 class="info">Authentication: <span class="auth whitelist">Whitelist</span> | <span class="auth cracked">Cracked</span></h5>
+    <h5 class="info">Status: <span class="status online">24/7</span></h5>
+    <h5 class="info">Location: <span class="location india">India</span></h5>
+  </div>
+  <a href="https://discord.gg/rCznKUHMjs" target="_blank">
+    <button class="join">Join Discord</button>
+  </a>
+</section>
+</div>
+
+<script>
+  const searchBar = document.getElementById('searchBar');
+  const editionFilter = document.getElementById('editionFilter');
+  const authFilter = document.getElementById('authFilter');
+  const statusFilter = document.getElementById('statusFilter');
+  const locationFilter = document.getElementById('locationFilter');
+
+  function filterCards() {
+    const search = searchBar.value.toLowerCase();
+    const edition = editionFilter.value;
+    const auth = authFilter.value;
+    const status = statusFilter.value;
+    const location = locationFilter.value;
+
+    document.querySelectorAll('.cards').forEach(card => {
+      const text = card.innerText.toLowerCase();
+
+      const matchSearch = text.includes(search);
+      const matchEdition = !edition || card.querySelector(`.edition.${edition}`) !== null;
+      const matchAuth = !auth || card.querySelector(`.auth.${auth}`) !== null;
+      const matchStatus = !status || card.querySelector(`.status.${status}`) !== null;
+      const matchLocation = !location || card.querySelector(`.location.${location}`) !== null;
+
+      card.style.display = (matchSearch && matchEdition && matchAuth && matchStatus && matchLocation) ? 'block' : 'none';
+    });
+  }
+
+  function resetFilters() {
+    searchBar.value = '';
+    editionFilter.value = '';
+    authFilter.value = '';
+    statusFilter.value = '';
+    locationFilter.value = '';
+    filterCards();
+  }
+
+  searchBar.addEventListener('input', filterCards);
+  editionFilter.addEventListener('change', filterCards);
+  authFilter.addEventListener('change', filterCards);
+  statusFilter.addEventListener('change', filterCards);
+  locationFilter.addEventListener('change', filterCards);
+</script>
 
 </body>
 </html>
