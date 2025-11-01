@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Anti Adblock Example</title>
+
+  <style>
+    /* Styles for the overlay message */
+    #ab_overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: none;            /* shown only when an adblocker is detected */
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+    #ab_box {
+      background: #fff;
+      max-width: 720px;
+      width: 100%;
+      border-radius: 10px;
+      padding: 28px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      text-align: center;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    #ab_box h1 { margin: 0 0 8px; font-size: 20px; }
+    #ab_box p { margin: 12px 0 20px; color: #333; line-height:1.4; }
+    #ab_actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+    .ab_btn {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .ab_btn.primary { background:#1f8ef1; color:white; }
+    .ab_btn.secondary { background:#efefef; color:#111; }
+
+    /* Small helper: hide link outlines only when mouse used (accessibility) */
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  </style>
+</head>
+<body>
+
+  <!-- Your usual site content goes here -->
+  <h2>Example page</h2>
+  <p>This is a page demonstrating anti-adblock detection. Nothing harmful here.</p>
+
+  <!-- Overlay that appears when adblocker detected -->
+  <div id="ab_overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div id="ab_box" role="document">
+      <h1>Please disable your ad blocker</h1>
+      <p>
+        It looks like you're using an ad blocker. This site relies on a small amount of advertising to stay online.
+        Please whitelist this site or turn off your ad blocker and then reload the page.
+      </p>
+      <div id="ab_actions">
+        <button class="ab_btn primary" id="ab_reload">I disabled it — Reload</button>
+        <button class="ab_btn secondary" id="ab_continue">Continue anyway</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    // ---- CONFIG ----
+    // Name of a resource that many adblockers block by pattern.
+    // You can change this to something your ad network uses, or keep as-is.
+    const BLOCKED_TEST_URL = '/ads.js'; // common bait name; may be blocked by adblockers
+
+    // Show the overlay after detection (true to show, false to only log)
+    const SHOW_OVERLAY = true;
+
+    // ---- UI helpers ----
+    const overlay = document.getElementById('ab_overlay');
+    const reloadBtn = document.getElementById('ab_reload');
+    const continueBtn = document.getElementById('ab_continue');
+
+    function showOverlay() {
+      overlay.style.display = 'flex';
+      overlay.setAttribute('aria-hidden', 'false');
+    }
+    function hideOverlay() {
+      overlay.style.display = 'none';
+      overlay.setAttribute('aria-hidden', 'true');
+    }
+
+    reloadBtn.addEventListener('click', function () {
+      // User says they've disabled the adblocker — reload and re-run detection
+      location.reload(true);
+    });
+    continueBtn.addEventListener('click', function () {
+      // allow the user to continue anyway (non-blocking)
+      hideOverlay();
+    });
+
+    // ---- DETECTION METHOD 1: "ad bait" element ----
+    // Some adblockers hide DOM elements that look like ads (class/id containing "ad", "ads", "banner", etc.)
+    function detectByBait() {
+      return new Promise(function (resolve) {
+        // create a bait element that's likely to be hidden by adblockers
+        const bait = document.createElement('div');
+        bait.className = 'ad-banner adsbox adUnit ad'; // intentionally ad-like classes
+        // style it so it won't affect layout/visibility for normal users
+        bait.style.width = '1px';
+        bait.style.height = '1px';
+        bait.style.position = 'absolute';
+        bait.style.left = '-9999px';
+        bait.style.top = '0px';
+        document.body.appendChild(bait);
+
+        // Wait a tick — adblockers may operate synchronously, but some operate after page load
+        setTimeout(function () {
+          const computed = window.getComputedStyle(bait);
+          // If element is hidden or removed, it's likely blocked.
+          const hiddenByStyle = (computed && (computed.display === 'none' || computed.visibility === 'hidden' || computed.opacity === '0'));
+          const removed = !document.body.contains(bait) || bait.offsetParent === null || bait.clientHeight === 0 || bait.clientWidth === 0;
+          // cleanup
+          try { bait.remove(); } catch (e) { /* ignore */ }
+          resolve(hiddenByStyle || removed);
+        }, 50);
+      });
+    }
+
+    // ---- DETECTION METHOD 2: fetch a "blocked" resource ----
+    // Many adblockers block network requests that match ad-related patterns.
+    function detectByFetch() {
+      return new Promise(function (resolve) {
+        // Attempt to fetch a common ad filename. The request will fail or be blocked if adblocker intercepts.
+        // We append a timestamp to try to avoid caching.
+        fetch(BLOCKED_TEST_URL + '?_=' + Date.now(), { method: 'GET', mode: 'no-cors', cache: 'no-store' })
+          .then(function (resp) {
+            // In no-cors mode we can't inspect status; success here means the request was allowed to be issued.
+            // Some blockers return opaque responses or block the request entirely. We'll treat resolution as "not blocked".
+            // To be conservative, consider this a non-block.
+            resolve(false);
+          })
+          .catch(function (err) {
+            // if the fetch throws, it may have been blocked — treat as blocked
+            resolve(true);
+          });
+
+        // Also add a timeout — if no response after N ms, treat as blocked (some blockers just drop requests)
+        setTimeout(function () {
+          // If neither resolved nor rejected, assume blocked
+          resolve(true);
+        }, 700); // 700ms timeout
+      });
+    }
+
+    // Run both detectors in parallel and decide
+    Promise.all([detectByBait(), detectByFetch()]).then(function (results) {
+      const [baitBlocked, fetchBlocked] = results;
+      const adblockDetected = baitBlocked || fetchBlocked;
+
+      if (adblockDetected) {
+        console.info('AdBlock detected (baitHidden=' + baitBlocked + ', fetchBlocked=' + fetchBlocked + ')');
+        if (SHOW_OVERLAY) showOverlay();
+      } else {
+        console.info('No AdBlock detected (baitHidden=' + baitBlocked + ', fetchBlocked=' + fetchBlocked + ')');
+      }
+    }).catch(function (e) {
+      // In case detection code errors — fail open (do not block users)
+      console.warn('AdBlock detection failed:', e);
+    });
+
+    // Optional: recheck on focus (user may have disabled adblocker in another tab)
+    window.addEventListener('focus', function () {
+      // small debounce to avoid spam
+      setTimeout(function () {
+        // re-run detection quickly; reuse the same logic
+        Promise.all([detectByBait(), detectByFetch()]).then(function (results) {
+          const [baitBlocked, fetchBlocked] = results;
+          if (!baitBlocked && !fetchBlocked) {
+            hideOverlay();
+          }
+        });
+      }, 300);
+    });
+  })();
+  </script>
+</body>
+</html>
